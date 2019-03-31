@@ -25,11 +25,11 @@ see installation page [HERE](https://github.com/vintol/listal-dl/wiki/Installati
 
 # Download
 
-Latest Release Page for [Downloads](https://github.com/vintol/listal-dl/releases/tag/0.21)
+Latest Release Page for [Downloads](https://github.com/vintol/listal-dl/releases/tag/v1.2.2)
 
 # Usage
 
-see usage page [HERE](https://github.com/vintol/listal-dl/wiki/Uv0.2)
+see usage page [HERE](https://github.com/vintol/listal-dl/wiki/Usage)
 
 # FAQ
 
