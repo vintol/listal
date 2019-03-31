@@ -1,6 +1,6 @@
 #   Listal.py
-#   08/11/2016
-#
+#   08/11/2016 - 2017-04-13
+#  
 
 import urllib.request, urllib.parse
 import bs4
