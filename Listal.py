@@ -1,8 +1,9 @@
 #   Listal.py
-#   27/01/2018
+#   08/11/2016 - 31/03/2019
 #   v 1.2.2
 
-import urllib.request, urllib.parse, ssl
+import urllib.request, urllib.parse
+import http.cookiejar, ssl
 import bs4
 import queue
 import threading
@@ -11,7 +12,6 @@ import os
 import sys
 import argparse
 import time
-import better_exceptions
 
 # Scrapers
 
@@ -168,6 +168,9 @@ urls = urllib.parse.urlparse(args.url)
 if urls.netloc != 'www.listal.com':
     print ("Check the Entered URL.")
     quit()
+
+#CookieJar Initiation
+urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar())
 
 if urls.path.startswith("/list/"):
     if args.first_page is not None:print("Entered URL is of a list. The '--from' option is ignored.")

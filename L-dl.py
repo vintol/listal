@@ -1,7 +1,7 @@
 #
 # Listal Downloader
 # vintol.github.io/listal
-# v1.2
+#
 
 import urllib.request,ssl
 import argparse
@@ -9,7 +9,6 @@ import time
 import queue
 import threading
 import os,sys
-import better_exceptions
 #
 
 # Very Important. 
