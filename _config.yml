@@ -1,0 +1,8 @@
+title: Listal-dl
+description: batch download photos from listal.com
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-midnight
+
+gems:
+  - jekyll-mentions
