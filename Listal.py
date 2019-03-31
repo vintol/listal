@@ -1,8 +1,8 @@
 #   Listal.py
-#   08/11/2016 - 2017-04-13
-#  
+#   27/01/2018
+#   v 1.2.2
 
-import urllib.request, urllib.parse
+import urllib.request, urllib.parse, ssl
 import bs4
 import queue
 import threading
@@ -11,6 +11,7 @@ import os
 import sys
 import argparse
 import time
+import better_exceptions
 
 # Scrapers
 
@@ -19,40 +20,54 @@ def get_ipages():
     while not qq.empty():
         local = threading.local()
         local.url = qq.get()
+        local.keep_going = True
+        local.skip = False
         if STOP_AT is not None and int(local.url.split('//')[2]) > STOP_AT:continue
-        try:local.html = urllib.request.urlopen(local.url,timeout=2)
-        except urllib.error.HTTPError as HERR:
-            if HERR.code == 404:continue
-        except:
-            while True:
-                local.html = urllib.request.urlopen(local.url,timeout=100)
-                if local.html.getcode() == 200:break
-                else:continue
-        try:
-            local.data = local.html.read()
-            local.soup = bs4.BeautifulSoup(local.data,'lxml')
-            for each in local.soup.find_all('div','imagewrap-inner'):
-                local.img = int(each.a.get('href').strip().split('/')[-1])
-                if IMG is None:ipages.append(local.img)
-                elif local.img > IMG:ipages.append(local.img)
-                elif local.img == IMG:STOP_AT = int(local.url.split('//')[2])
-                else:pass
-        except:qq.put(local.url)
+        while local.keep_going:
+            try:local.html = urllib.request.urlopen(local.url,timeout=10)
+            except urllib.error.HTTPError as HERR:
+                if HERR.code == 404:
+                    local.keep_going = False
+                    local.skip = True
+                    continue
+            except:continue
+            if local.html.getcode() == 200:local.keep_going = False
+        if local.skip:continue
+        local.data = local.html.read()
+        local.soup = bs4.BeautifulSoup(local.data,'lxml')
+        for each in local.soup.find_all('div','imagewrap-inner'):
+            local.img = int(each.a.get('href').strip().split('/')[-1])
+            if IMG is None:ipages.append(local.img)
+            elif local.img > IMG:ipages.append(local.img)
+            elif local.img == IMG:STOP_AT = int(local.url.split('//')[2])
+            else:pass
 
 def get_images():
     while not qq.empty():
         local = threading.local()
         local.url = qq.get()
-        try:local.html = urllib.request.urlopen(local.url,timeout=10)
-        except urllib.error.HTTPError as HERR:
-            if HERR.code == 404:continue
-        except:local.html = urllib.request.urlopen(local.url,timeout=25)
+        local.keep_going = True
+        local.skip = True
+        local.retry = 0
+        while local.keep_going and local.retry < 5:
+            try:
+                local.retry += 1
+                local.html = urllib.request.urlopen(local.url,timeout=25)
+                if local.html.getcode() == 200:
+                    local.keep_going = False
+                    local.skip = False
+            except urllib.error.HTTPError as HERR:
+                if HERR is not None and HERR.code == 404:
+                    local.keep_going = False
+                    continue
+            except:continue
+        if local.skip:continue
         for i in range(2):
             try:
                 local.data = local.html.read()
-                break
+                images.append(find_image(local.data))
             except:continue
-        images.append(find_image(local.data))
+            break
 
 # Functions
 
@@ -61,16 +76,16 @@ def mksoup(url):
     return bs4.BeautifulSoup(tmp.read(),"lxml")
 
 def find_image(data):
-    return bs4.BeautifulSoup(data,"lxml").find('img','pure-img').get('src')
+    return bs4.BeautifulSoup(data,"lxml").find('img','pure-img').get('src').replace("https:","http:")
 
 def post_req():
     tmp = urllib.parse.urlencode({ 'listid' : list_id , 'offset' : offset})
-    return urllib.request.urlopen("http://www.listal.com/item-list/",tmp.encode())
+    return urllib.request.urlopen("https://www.listal.com/item-list/",tmp.encode())
 
 def mkqueue(url):
     global no_pics,no_pages
     no_pics  = int(mksoup(url).find('a','picturesbutton').span.text.strip())
-    no_pages = no_pics/20
+    no_pages = no_pics/50
     if no_pages.is_integer():no_pages = int(no_pages)
     else:no_pages = int(no_pages) + 1
     for i in range(int(args.first_page),no_pages+1):qq.put(url+"/pictures//"+str(i))
@@ -91,7 +106,7 @@ def stop_at(IMG):
 
 def update_progress():
     progress = 100 - int((100*qq.qsize()) / len(ipages))
-    pbar = "\r {:0>3}% [{:<50}] ({},{})".format(progress, '#'*int((progress/2)), (len(ipages)-qq.qsize()), len(ipages))
+    pbar = "\r {:0>3}% [{:<50}] ({},{}) ".format(progress, '#'*int((progress/2)), (len(ipages)-qq.qsize()), len(ipages))
     sys.stdout.write(pbar)
     sys.stdout.flush()
 
@@ -172,8 +187,9 @@ else:
         t.start()
     for t in threads:t.join()
 
-
-print("Time Taken :",time.strftime("%H:%M:%S",time.gmtime(time.time()-started))) #DEBUG
+print("Phase I Complete.",len(ipages),"Images Found.")
+print("Time Taken :",time.strftime("%H:%M:%S",time.gmtime(time.time()-started)))
+print("Phase II :")
 enqueue()
 threads.clear()
 for n in range(args.threads):

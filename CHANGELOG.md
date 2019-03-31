@@ -5,10 +5,34 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ------------
-## [Upcoming Release]
+## [1.2.1] - 2018-01-27
+### Added
+- Capability for handling https protocol.
+### Deprecated
+- Forcing usage of http protocol because ssl certificate issues
+### Security
+- HTTPS certificate is not verified.
+
+
+---------
+## [1.2.0] - 2018-11-21
+### Added
+- Stop scraping at a perticular image
+- Start from or finish at a perticular page no.
+### Changed
+- Report Broken links.
+### Fixed
+- Error handling exception when http timeout
 
 -------
+## [1.1.0] - 2017-03-29
 
+### Added
+- Downloader always checks if files are already downloaded and skips them.
+- Errors are categorized for better understanding of bugs.
+- Checks for broken links.
+
+----
 ## [1.0.0] - 2016-11-10
 First Stable release.
 ### Added

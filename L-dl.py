@@ -1,7 +1,7 @@
 #
 # Listal Downloader
-#
-#
+# vintol.github.io/listal
+# v1.2
 
 import urllib.request,ssl
 import argparse
