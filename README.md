@@ -1,4 +1,6 @@
 # listal-dl
+
+[![Join the chat at https://gitter.im/vintol/listal](https://badges.gitter.im/vintol/listal.svg)](https://gitter.im/vintol/listal?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 batch download photos from listal.com
 
 ## [Listal.com](http://www.listal.com) - List the stuff you love!
